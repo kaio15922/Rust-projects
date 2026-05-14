@@ -1,5 +1,5 @@
 use std::net::{TcpListener, TcpStream};
-use std::io::{Write, Read};
+use std::io::{self, Read, Write};
 
 fn servidor()
 {
@@ -19,12 +19,21 @@ fn cliente()
 {
     let mut stream = TcpStream::connect("127.0.0.1:5000").unwrap();
 
+    print!("Digite sua mensagem... ");
+    io::stdout().flush().unwrap();
+
     enviar_mensagem(&mut stream);
 }
 
 fn enviar_mensagem(stream: &mut TcpStream)
 {
-    stream.write_all(b"ola tudo bem?").unwrap();
+    let mut texto = String::new();
+
+    io::stdin().read_line(&mut texto).expect("moio meu vei");
+
+    let mensagem = texto;
+
+    stream.write_all(&mensagem.as_bytes()).unwrap();
 
     println!("Mensagem enviada!");
 }
@@ -35,10 +44,11 @@ fn receber_mensagem(stream: &mut TcpStream)
 
     let bytes = stream.read(&mut buffer).unwrap();
 
-    println!(
+    print!(
         "Recebido: {}",
         String::from_utf8_lossy(&buffer[..bytes])
-    )
+    );
+    io::stdout().flush().unwrap();
 }
 fn main()
 {
